@@ -1,5 +1,5 @@
 # 使用 OpenJDK 17 镜像作为构建基础
-FROM openjdk:17-slim AS builder
+FROM eclipse-temurin:17-jre
 
 # 安装 Maven
 RUN apt-get update && apt-get install -y maven
@@ -18,7 +18,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # 最终镜像用于运行
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
