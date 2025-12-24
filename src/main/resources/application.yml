@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: temp-email-mcp
+  ai:
+    mcp:
+      server:
+        enabled: true
+        protocol: sse
+        name: ${spring.application.name}
+        sse-endpoint: /sse
+        capabilities:
+          tool: true
+        sse-message-endpoint: /mcp/message
+  datasource:
+    url: jdbc:sqlite:temp_email.db
+    driver-class-name: org.sqlite.JDBC
+    jpa:
+      database-platform: org.hibernate.community.dialect.SQLiteDialect # 使用 SQLiteDialect
+      hibernate:
+        ddl-auto: update # 自动更新数据库结构
+      show-sql: true # 显示 SQL 语句
+
+server:
+  port: 8080
+### ??MCP?????
+logging:
+  level:
+    org.springframework.ai.mcp: TRACE
+    io.modelcontextprotocol: TRACE
