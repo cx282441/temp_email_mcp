@@ -25,6 +25,9 @@ WORKDIR /app
 # 拷贝构建出来的 JAR 包
 COPY --from=builder /app/target/temp-email-mcp-0.0.1-SNAPSHOT.jar app.jar
 
+# 拷贝 SQLite 数据库文件
+COPY --from=builder /app/temp_email.db /app/temp_email.db
+
 # Zeabur 会自动注入 PORT 环境变量
 EXPOSE 8080
 
