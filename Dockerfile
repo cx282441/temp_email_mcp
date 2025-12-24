@@ -1,5 +1,5 @@
-# 使用 OpenJDK 17 镜像作为构建基础
-FROM eclipse-temurin:17-jre AS builder
+# 使用带有 JDK 的 OpenJDK 17 镜像作为构建基础
+FROM eclipse-temurin:17-jdk AS builder
 
 # 安装 Maven
 RUN apt-get update && apt-get install -y maven
