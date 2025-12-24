@@ -1,5 +1,6 @@
 # 使用 Maven 官方镜像构建 JAR 文件
-FROM maven:3.8.6-openjdk-17-slim AS builder
+FROM maven:3.8.6-jdk-17 AS builder
+
 
 # 设置时区为 UTC+8
 ENV TZ=Asia/Shanghai
