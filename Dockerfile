@@ -1,39 +1,35 @@
-# 多阶段构建 - 第一阶段：构建应用
-FROM maven:3.8.6-openjdk-17 AS builder
+# 使用 Maven 官方镜像构建 JAR 文件
+FROM maven:3.8.6-openjdk-17-slim AS builder
+
+# 设置时区为 UTC+8
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制项目文件
+# 拷贝 pom.xml 和源码到容器
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
+COPY src ./src
 
-# 复制源代码
-COPY src src
+# 使用 Maven 构建项目并生成 JAR 包
+RUN mvn clean package -DskipTests
 
-# 构建应用程序
-RUN ./mvnw clean package -DskipTests
+# 使用一个更小的基础镜像来运行应用程序
+FROM eclipse-temurin:17-jre
 
-# 第二阶段：运行应用
-FROM openjdk:17-jre-slim
-
-# 安装时区数据（可选）
-RUN apt-get update && apt-get install -y tzdata && rm -rf /var/lib/apt/lists/*
+# 设置时区为 UTC+8
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 设置工作目录
 WORKDIR /app
 
-# 从构建阶段复制JAR文件
-COPY --from=builder /app/target/*.jar app.jar
+# 从构建阶段复制 JAR 文件到容器
+COPY --from=builder /app/target/temp-email-mcp-0.0.1-SNAPSHOT.jar app.jar
 
-# 创建一个非root用户运行应用（安全最佳实践）
-RUN addgroup --system --gid 1001 appuser && \
-    adduser --system --uid 1001 --ingroup appuser appuser
-USER 1001:1001
-
-# 暴露应用端口（通常为8080）
+# Zeabur 会自动注入 PORT 环境变量
 EXPOSE 8080
 
-# 启动应用
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# 必须用 exec 形式启动应用
+ENTRYPOINT ["java", "-jar", "app.jar", "--server.port=8080"]
